@@ -18,7 +18,7 @@ def transcribe_video(video_path: str, model_size: str = "base", language: str = 
     Args:
         video_path: 動画ファイルのパス
         model_size: Whisperモデルのサイズ (tiny, base, small, medium, large)
-        language: 言語コード (ja=日本語, en=英語など)
+        language: 言語コード (ja=日本語(japanese), en=英語など)
         device: 使用するデバイス (None=自動検出, "cuda", "cpu")
     
     Returns:
@@ -78,7 +78,7 @@ def summarize_with_ollama(
     endpoint = ollama_endpoint.rstrip("/")
     payload = {
         "model": model,
-        "prompt": f"以下の文章を日本語で約{max_length}文字に要約してください。\n\n{text.strip()}",
+        "prompt": f"以下の文章を日本語(japanese)で約{max_length}文字に要約してください。\n\n{text.strip()}",
         "stream": True,
     }
     
