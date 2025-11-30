@@ -1,0 +1,10 @@
+openai-whisper==20231117
+# PyTorch (CUDA対応版)
+# CUDA対応のPyTorchをインストールするには、以下のコマンドを使用してください:
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# または、CUDA 11.8以外のバージョンを使用する場合:
+# https://pytorch.org/get-started/locally/ を参照してください
+torch>=2.0.0
+numpy>=1.24.0
+requests>=2.31.0
+
