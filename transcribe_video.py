@@ -165,17 +165,28 @@ def main():
     if len(sys.argv) > 1:
         video_path = sys.argv[1]
     else:
-        # 引数がない場合は、スクリプトと同じディレクトリ内の動画ファイルを探す
+        # 引数がない場合は、videoフォルダ内の動画ファイルを探す
         script_dir = Path(__file__).parent
+        video_dir = script_dir / "video"
+        
+        # videoフォルダが存在しない場合はエラー
+        if not video_dir.exists():
+            print(f"エラー: videoフォルダが見つかりません: {video_dir}")
+            print("使用方法:")
+            print(f"  python {os.path.basename(__file__)} <動画ファイルのパス>")
+            print("\nまたは、videoフォルダを作成して動画ファイルを配置してください。")
+            sys.exit(1)
+        
         video_extensions = ['.mp4', '.avi', '.mov', '.mkv', '.flv', '.wmv', '.MP4', '.AVI', '.MOV', '.MKV']
         video_files = []
         for ext in video_extensions:
-            video_files.extend(script_dir.glob(f"*{ext}"))
+            video_files.extend(video_dir.glob(f"*{ext}"))
         
         if not video_files:
+            print(f"エラー: videoフォルダ内に動画ファイルが見つかりません: {video_dir}")
             print("使用方法:")
             print(f"  python {os.path.basename(__file__)} <動画ファイルのパス>")
-            print("\nまたは、スクリプトと同じディレクトリに動画ファイルを配置してください。")
+            print("\nまたは、videoフォルダに動画ファイルを配置してください。")
             sys.exit(1)
         
         video_path = str(video_files[0])

@@ -69,11 +69,15 @@ python transcribe_video.py video.mp4
 python transcribe_video.py "C:\Users\Username\Videos\my_video.mp4"
 ```
 
-### 方法2: スクリプトと同じディレクトリに動画を配置
+### 方法2: videoフォルダに動画を配置
 
-スクリプトと同じディレクトリに動画ファイルを配置すると、自動的に検出されます。
+`video`フォルダを作成し、その中に動画ファイルを配置すると、自動的に検出されます。
 
 ```bash
+# videoフォルダを作成（まだない場合）
+mkdir video
+
+# 動画ファイルをvideoフォルダに配置後
 python transcribe_video.py
 ```
 
