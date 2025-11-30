@@ -37,7 +37,8 @@ env/
 .DS_Store
 Thumbs.db
 
-# 動画ファイル（必要に応じてコメントアウト）
+# 動画ファイルとフォルダ
+video/
 # *.mp4
 # *.avi
 # *.mov
