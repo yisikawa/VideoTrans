@@ -54,83 +54,80 @@ def transcribe_video(video_path: str, model_size: str = "base", language: str = 
     return result
 
 
-def summarize_with_ollama(
-    text: str, 
-    model: str = "gemma3:1b",
-    ollama_endpoint: str = "http://localhost:11434",
+def summarize_with_lmstudio(
+    text: str,
+    model: str = "local-model",
+    lmstudio_endpoint: str = "http://localhost:1234",
     max_length: int = 400
 ) -> Optional[str]:
     """
-    Ollamaを使用して要約を生成
-    
+    LM Studioを使用して要約を生成
+
     Args:
         text: 要約するテキスト
-        model: Ollamaモデル名（デフォルト: gemma3:1b）
-        ollama_endpoint: Ollama APIエンドポイント
+        model: LM Studioで読み込んでいるモデル名
+        lmstudio_endpoint: LM Studio APIエンドポイント
         max_length: 要約の最大文字数
-    
+
     Returns:
         要約されたテキスト
     """
     if not text or not text.strip():
         return None
-    
-    endpoint = ollama_endpoint.rstrip("/")
+
+    endpoint = lmstudio_endpoint.rstrip("/")
     payload = {
         "model": model,
-        "prompt": f"以下の文章を日本語(japanese)で約{max_length}文字に要約してください。\n\n{text.strip()}",
-        "stream": True,
+        "messages": [
+            {
+                "role": "user",
+                "content": f"以下の文章を日本語(japanese)で約{max_length}文字に要約してください。\n\n{text.strip()}"
+            }
+        ],
+        "stream": False,
     }
-    
+
     try:
-        print(f"Ollama ({model}) で要約を生成中...")
+        print(f"LM Studio ({model}) で要約を生成中...")
         response = requests.post(
-            f"{endpoint}/api/generate",
+            f"{endpoint}/v1/chat/completions",
             json=payload,
-            stream=True,
             timeout=120,
         )
         response.raise_for_status()
-        summary_parts = []
-        for line in response.iter_lines():
-            if not line:
-                continue
-            data = json.loads(line)
-            chunk = data.get("response")
-            if chunk:
-                summary_parts.append(chunk)
-        summary = "".join(summary_parts).strip()
+        data = response.json()
+        summary = data["choices"][0]["message"]["content"].strip()
         return summary if summary else None
     except requests.exceptions.ConnectionError:
-        print(f"エラー: Ollamaサーバーに接続できませんでした。{endpoint} が起動しているか確認してください。")
+        print(f"エラー: LM Studioサーバーに接続できませんでした。{endpoint} が起動しているか確認してください。")
         return None
     except Exception as exc:
-        print(f"Ollama要約エラー: {exc}")
+        print(f"LM Studio要約エラー: {exc}")
         return None
 
 
-def print_summary(result, ollama_model: str = "gemma3:1b", ollama_endpoint: str = "http://localhost:11434"):
+def print_summary(result, lmstudio_model: str = "local-model", lmstudio_endpoint: str = "http://localhost:1234"):
     """
     文字起こし結果を要約してプリントアウト
-    
+
     Args:
         result: Whisperの文字起こし結果
-        ollama_model: Ollamaモデル名
-        ollama_endpoint: Ollama APIエンドポイント
+        lmstudio_model: LM Studioで読み込んでいるモデル名
+        lmstudio_endpoint: LM Studio APIエンドポイント
     """
     print("\n" + "="*80)
     print("文字起こし結果の概要")
     print("="*80)
-    
+
     # 文字起こしテキストを取得
     text = result.get("text", "")
     if not text or not text.strip():
         print("\n文字起こし結果が空です。")
         print("="*80)
         return
-    
-    # Ollamaで要約を生成
-    summary = summarize_with_ollama(text, model=ollama_model, ollama_endpoint=ollama_endpoint)
+
+    # LM Studioで要約を生成
+    summary = summarize_with_lmstudio(text, model=lmstudio_model, lmstudio_endpoint=lmstudio_endpoint)
     
     if summary:
         print("\n【概要】")
@@ -210,22 +207,22 @@ def main():
             print(f"警告: 無効なデバイス '{device}'。自動検出を使用します。")
             device = None
     
-    # Ollamaモデルの指定（オプション）
-    ollama_model = os.getenv("OLLAMA_MODEL", "gemma3:1b")
+    # LM Studioモデルの指定（オプション）
+    lmstudio_model = os.getenv("LM_STUDIO_MODEL", "local-model")
     if len(sys.argv) > 5:
-        ollama_model = sys.argv[5]
-    
-    # Ollamaエンドポイントの指定（オプション）
-    ollama_endpoint = os.getenv("OLLAMA_ENDPOINT", "http://localhost:11434")
+        lmstudio_model = sys.argv[5]
+
+    # LM Studioエンドポイントの指定（オプション）
+    lmstudio_endpoint = os.getenv("LM_STUDIO_ENDPOINT", "http://localhost:1234")
     if len(sys.argv) > 6:
-        ollama_endpoint = sys.argv[6]
-    
+        lmstudio_endpoint = sys.argv[6]
+
     try:
         # 文字起こし実行
         result = transcribe_video(video_path, model_size=model_size, language=language, device=device)
-        
+
         # 要約をプリントアウト
-        print_summary(result, ollama_model=ollama_model, ollama_endpoint=ollama_endpoint)
+        print_summary(result, lmstudio_model=lmstudio_model, lmstudio_endpoint=lmstudio_endpoint)
         
     except Exception as e:
         print(f"エラーが発生しました: {e}")

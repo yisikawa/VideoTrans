@@ -1,12 +1,12 @@
-# VideoTrans - 動画文字起こしツール
+﻿# VideoTrans - 動画文字起こしツール
 
-ローカルの動画ファイルを読み込んで文字起こしを行い、Ollamaを使用して概要を生成するPythonスクリプトです。
+ローカルの動画ファイルを読み込んで文字起こしを行い、LM Studioを使用して概要を生成するPythonスクリプトです。
 
 ## 必要な環境
 
 - Python 3.8以上
 - FFmpeg（Whisperが音声を抽出するために必要）
-- Ollama（要約生成に使用、デフォルト: gemma3:1b）
+- LM Studio（要約生成に使用、デフォルトエンドポイント: http://localhost:1234）
 - NVIDIA GPU（CUDA版を使用する場合）
 - CUDA対応のNVIDIAドライバー（CUDA版を使用する場合）
 
@@ -38,15 +38,14 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 pip install openai-whisper numpy requests
 ```
 
-### Ollamaのインストールとセットアップ
+### LM Studioのセットアップ
 
-1. Ollamaをインストール:
-   - Windows/macOS/Linux: https://ollama.ai/ からダウンロード
+1. LM Studioをインストール:
+   - Windows/macOS/Linux: https://lmstudio.ai/ からダウンロード
 
-2. gemma3:1bモデルをダウンロード（初回のみ）:
-```bash
-ollama pull gemma3:1b
-```
+2. LM Studioを起動し、使用するモデルをロード
+
+3. 「Local Server」タブでサーバーを起動（デフォルトポート: 1234）
 
 ### FFmpegのインストール
 
@@ -106,25 +105,25 @@ python transcribe_video.py video.mp4 base ja cuda  # GPUを使用
 python transcribe_video.py video.mp4 base ja cpu   # CPUを使用
 ```
 
-- Ollamaモデルを指定（デフォルト: gemma3:1b）:
+- LM Studioモデルを指定（デフォルト: local-model）:
 ```bash
-python transcribe_video.py video.mp4 base ja cuda gemma3:1b
+python transcribe_video.py video.mp4 base ja cuda local-model
 ```
 
-- Ollamaエンドポイントを指定（デフォルト: http://localhost:11434）:
+- LM Studioエンドポイントを指定（デフォルト: http://localhost:1234）:
 ```bash
-python transcribe_video.py video.mp4 base ja cuda gemma3:1b http://localhost:11434
+python transcribe_video.py video.mp4 base ja cuda local-model http://localhost:1234
 ```
 
 環境変数でも設定可能:
 ```bash
 # Windows
-set OLLAMA_MODEL=gemma3:1b
-set OLLAMA_ENDPOINT=http://localhost:11434
+set LM_STUDIO_MODEL=local-model
+set LM_STUDIO_ENDPOINT=http://localhost:1234
 
 # Linux/macOS
-export OLLAMA_MODEL=gemma3:1b
-export OLLAMA_ENDPOINT=http://localhost:11434
+export LM_STUDIO_MODEL=local-model
+export LM_STUDIO_ENDPOINT=http://localhost:1234
 ```
 
 ## CUDA（GPU）の使用
@@ -139,9 +138,9 @@ print(torch.cuda.is_available())  # True の場合、CUDAが利用可能
 
 ## 出力
 
-文字起こし結果はOllamaを使用して要約され、以下の形式で表示されます:
+文字起こし結果はLM Studioを使用して要約され、以下の形式で表示されます:
 
-- **概要**: Ollama（gemma3:1b）で生成された文字起こし結果の要約
+- **概要**: LM Studioで生成された文字起こし結果の要約
 
 ## 注意事項
 
@@ -150,7 +149,6 @@ print(torch.cuda.is_available())  # True の場合、CUDAが利用可能
 - 長い動画の場合は処理に時間がかかる場合があります
 - CUDA版を使用すると、CPU版と比べて処理速度が大幅に向上します（特に大きなモデルサイズの場合）
 - CUDAが利用できない環境では、自動的にCPUが使用されます
-- **Ollamaサーバーが起動している必要があります**（`ollama serve` または自動起動）
-- Ollamaサーバーに接続できない場合、要約の生成に失敗します
+- **LM Studioのローカルサーバーが起動している必要があります**
+- LM Studioサーバーに接続できない場合、要約の生成に失敗します
 - 全文は表示されず、要約のみが表示されます
-
